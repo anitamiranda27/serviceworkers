@@ -6,7 +6,7 @@ var currentCache = {
 };
 const offlineUrl = 'offline-page.html';
 
-var recursos = ['./juego.js', './service-workers.js', offlineUrl];
+var recursos = ['./service-workers.js','./juego.js', offlineUrl];
 
 function createCacheBustedRequest(url)
 {
@@ -41,10 +41,13 @@ this.addEventListener('fetch', event => {
   }
   else{
         // Respond with everything else if we can
-        event.respondWith(caches.match(event.request)
-                        .then(function (response) {
-                        return response || fetch(event.request);
-                    })
-            );
+        event.respondWith
+        // Try the cache
+        (caches.match(event.request)
+            // Fall back to network
+            .then(function (response) {
+                return response || fetch(event.request);
+              })
+          );
       }
 });
