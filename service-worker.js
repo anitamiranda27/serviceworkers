@@ -6,13 +6,24 @@ var currentCache = {
 };
 const offlineUrl = 'offline-page.html';
 
+var recursos = ['./img/offline.svg', offlineUrl];
+
+function createCacheBustedRequest(url)
+{
+  let request = new Request(url, {cache:'reload'});
+  if('cache' in request)
+  {
+    return request;
+  }
+  let bustedUrl  = new URL(url,self.location.href);
+  bustedUrl.search += (bustedUrl.search ? '&' : '') + 'cachebust=' + Date.now();
+  return new Request(bustedUrl);
+}
+
 this.addEventListener('install', event => {
   event.waitUntil(
     caches.open(currentCache.offline).then(function(cache) {
-      return cache.addAll([
-          './img/offline.svg',
-          offlineUrl
-      ]);
+      return cache.addAll(recursos);
     })
   );
 });
@@ -22,9 +33,9 @@ this.addEventListener('fetch', event => {
   // so include a check for Accept: text/html header.
   if (event.request.mode === 'navigate' || (event.request.method === 'GET' && event.request.headers.get('accept').includes('text/html'))) {
         event.respondWith(
-          fetch(event.request.url).catch(error => {
-              // Return the offline page
-              return caches.match(offlineUrl);
+          fetch(createCacheBustedRequest(event.request.url)).catch(error => {
+            //Return the offline page
+            return caches.match(offlineUrl);
           })
     );
   }
