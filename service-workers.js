@@ -6,7 +6,7 @@ var currentCache = {
 };
 const offlineUrl = 'offline-page.html';
 
-var recursos = ['./juego.js', offlineUrl];
+var recursos = ['./juego.js', './service-workers.js', offlineUrl];
 
 function createCacheBustedRequest(url)
 {
